@@ -1,0 +1,4 @@
+62128d646e92ac217d3127279449d9cff514f5f64dcc4cb7979bbd0d3563449c  BOB2-microbit/BOB2mbit-common.hex
+4aba15fae491aa9587e1daad1729031a7e8a190d75317bf0733f844ded09829e  Control-microbit/CtrlMbit.hex
+6e714a3c284162944c45ee596aee0fa59909739406dce070cee0cc16d2e162c3  CreateAI-microbit/CreateAI-L.hex
+473268c1cb27d90545191e0238906a72eaae495f2b1ab4dea91733b833899a76  CreateAI-microbit/CreateAI-R.hex

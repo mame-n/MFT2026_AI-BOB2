@@ -1,0 +1,29 @@
+{
+    "name": "BOB2-Odoryanya",
+    "description": "4台共通のBOB2制御プログラム",
+    "dependencies": {
+        "core": "*",
+        "bluetooth": "*",
+        "servo": "*",
+        "settings": "*",
+        "microphone": "*"
+    },
+    "files": [
+        "main.ts"
+    ],
+    "supportedTargets": [
+        "microbit"
+    ],
+    "preferredEditor": "tsprj",
+    "yotta": {
+        "config": {
+            "microbit-dal": {
+                "bluetooth": {
+                    "open": 1,
+                    "whitelist": 0,
+                    "security_level": null
+                }
+            }
+        }
+    }
+}

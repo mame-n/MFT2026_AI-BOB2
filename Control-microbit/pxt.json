@@ -1,0 +1,16 @@
+{
+    "name": "CtrlMbit-Odoryanya",
+    "description": "CreateAI左右2台のradio値をUSB Serialへ中継",
+    "dependencies": {
+        "core": "*",
+        "radio": "*",
+        "microphone": "*"
+    },
+    "files": [
+        "main.ts"
+    ],
+    "supportedTargets": [
+        "microbit"
+    ],
+    "preferredEditor": "tsprj"
+}

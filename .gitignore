@@ -1,0 +1,19 @@
+.DS_Store
+**/.DS_Store
+
+# Local editor and Python environments
+/.obsidian/
+/.venv/
+/.build/
+/.pycache/
+/WebApp/.venv/
+**/__pycache__/
+*.py[cod]
+
+# Generated dependencies and MakeCode build output
+**/node_modules/
+**/pxt_modules/
+**/built/
+
+# Local-only experiments and tests
+/LocalTests/

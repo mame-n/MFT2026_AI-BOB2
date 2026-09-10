@@ -1,0 +1,137 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#f5efdf">
+  <title>踊らにゃ損損 — Stage Controller</title>
+  <link rel="stylesheet" href="/styles.css">
+  <style>
+    .bob-grid{grid-template-columns:repeat(4,minmax(0,1fr))}
+    .log-grid{display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;align-items:start}
+    .log-grid article{border:1px solid var(--ink);background:#eee9da;padding:10px;min-width:0}
+    .log-grid h3{font-size:12px;margin:0 0 6px}
+    .log-grid ol{height:150px;max-height:150px!important;overflow:auto}
+    .sample-history{margin-top:28px;border:2px solid var(--ink);background:var(--card);box-shadow:var(--shadow);padding:20px 25px}
+    .sample-history[hidden]{display:none}
+    .sample-history>div{display:flex;align-items:baseline;justify-content:space-between;gap:12px}
+    .sample-history h2{font-size:15px;margin:0 0 14px}
+    .sample-history p{font-size:11px;color:var(--muted);margin:0}
+    .sample-history table{width:100%;border-collapse:collapse;text-align:center;font-size:12px}
+    .sample-history th,.sample-history td{border:1px solid var(--line);padding:6px 10px}
+    .sample-history thead,.sample-history tfoot{background:#eee9da;font-weight:900}
+    .sample-history .excluded-sample{color:var(--muted);background:#f1eee5}
+    @media(max-width:800px){.bob-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.log-grid{grid-template-columns:1fr}}
+  </style>
+</head>
+<body>
+  <div class="noise" aria-hidden="true"></div>
+  <header class="topbar">
+    <a class="brand" href="#" aria-label="踊らにゃ損損 ホーム">
+      <span class="brand-mark">踊</span>
+      <span><b>踊らにゃ損損</b><small>STAGE CONTROLLER</small></span>
+    </a>
+    <div class="status-pill"><i id="systemDot"></i><span id="systemStatus">スタンバイ</span></div>
+    <button class="icon-button" id="soundButton" aria-label="効果音の切り替え">♪</button>
+  </header>
+
+  <main>
+    <section class="hero">
+      <div>
+        <p class="eyebrow">MFT 2026 PERFORMANCE SYSTEM</p>
+        <h1>見て、覚えて、<br><em>一緒に踊ろう。</em></h1>
+      </div>
+      <div class="hero-meta">
+        <span>SESSION <b id="sessionNumber">001</b></span>
+        <span>MODE <b id="modeLabel">初級</b></span>
+      </div>
+    </section>
+
+    <section class="stage-panel">
+      <div class="section-head">
+        <div><span class="step-number">01</span><div><h2>BOB ステージ</h2><p>4台のBOB2 micro:bit LED表示をモニター</p></div></div>
+        <div class="phase"><small>PHASE</small><b id="phaseLabel">準備中</b></div>
+      </div>
+      <div class="bob-grid" id="bobGrid"></div>
+      <div class="progress-track"><i id="progressBar"></i></div>
+      <div class="timeline"><span>模範演技</span><span>チャレンジ</span><span>結果発表</span></div>
+    </section>
+
+    <section class="control-grid">
+      <article class="panel game-control">
+        <div class="section-head compact"><div><span class="step-number">02</span><div><h2>ゲーム操作</h2><p>難易度を選んでスタート</p></div></div></div>
+        <div class="level-picker" role="group" aria-label="難易度">
+          <button class="level active" data-level="beginner"><small>LEVEL 1</small><b>初 級</b><span>ゆっくり</span></button>
+          <button class="level" data-level="advanced"><small>LEVEL 2</small><b>上 級</b><span>すばやく</span></button>
+        </div>
+        <div class="action-row">
+          <button class="start-button" id="startButton"><span>▶</span><b>ゲーム開始</b><small>DJ2GO2: PLAY</small></button>
+          <button class="stop-button" id="stopButton"><span>■</span><b>中断</b><small>CUE</small></button>
+          <button class="stop-button" id="homeButton"><span>↘</span><b>初期位置</b><small>腕を下げる</small></button>
+        </div>
+        <label class="simulation-toggle"><input type="checkbox" id="simulationToggle" checked><span></span><div><b>デモモード</b><small>実機なしで自動プレイ</small></div></label>
+      </article>
+
+      <article class="panel connections">
+        <div class="section-head compact"><div><span class="step-number">03</span><div><h2>接続</h2><p>本番機材のステータス</p></div></div></div>
+        <div class="connection-list">
+          <div class="connection-row"><i id="ctrlDot"></i><div><b>Ctrl micro:bit</b><small id="ctrlStatus">未接続 · USB Serial</small></div><button id="serialButton">接続</button></div>
+          <div class="connection-row"><i id="midiDot"></i><div><b>DJ2GO2</b><small id="midiStatus">未接続 · Web MIDI</small></div><button id="midiButton">接続</button></div>
+          <div class="connection-row bob-connection"><i id="bleDot"></i><div><b>BOB2 micro:bit</b><small id="bleStatus">0 / 4台 · Bluetooth</small></div><button id="bleButton">接続管理</button></div>
+        </div>
+        <div class="sensor-readout">
+          <span>LIVE MOTION</span><b id="motionReadout">入力待ち</b><meter id="confidenceMeter" min="0" max="1" value="0"></meter><strong id="confidenceLabel">--%</strong>
+          <span>danceNo0 5秒平均 · BOB-01</span><b id="averageLabel1">--% (0/20)</b>
+          <span>danceNo1 5秒平均 · BOB-02</span><b id="averageLabel2">--% (0/20)</b>
+          <span>danceNo2 5秒平均 · BOB-03</span><b id="averageLabel3">--% (0/20)</b>
+          <span>danceNo3 5秒平均 · BOB-04</span><b id="averageLabel4">--% (0/20)</b>
+        </div>
+      </article>
+    </section>
+
+    <section class="createai-diagnostics">
+      <div><h2>CreateAI 受信診断</h2><p id="createAiStatus">受信 0行 / 有効 0行 / 無視 0行</p></div>
+      <div class="createai-diag-list" id="createAiDiagBody"></div>
+      <div class="raw-serial-head"><span>最新RAW</span><code id="createAiLastRaw">未受信</code></div>
+      <ol id="rawSerialLog" aria-live="polite"></ol>
+    </section>
+
+    <section class="log-panel">
+      <div><h2>イベントログ</h2><button id="clearLog">クリア</button></div>
+      <div class="log-grid">
+        <article><h3>動き1 · danceNo0</h3><ol id="eventLog1" aria-live="polite"></ol></article>
+        <article><h3>動き2 · danceNo1</h3><ol id="eventLog2" aria-live="polite"></ol></article>
+        <article><h3>その他のイベント</h3><ol id="eventLogOther" aria-live="polite"></ol></article>
+      </div>
+    </section>
+
+    <section class="sample-history" id="sampleHistory" hidden>
+      <div><h2>20回の一致度データ</h2><p>250ms間隔 · 5秒間</p></div>
+      <table>
+        <thead><tr><th>回</th><th>BOB-01 · danceNo0</th><th>BOB-02 · danceNo1</th><th>BOB-03 · danceNo2</th><th>BOB-04 · danceNo3</th></tr></thead>
+        <tbody id="sampleHistoryBody"></tbody>
+        <tfoot><tr><th>平均（01除外）</th><td id="sampleAverage1">--</td><td id="sampleAverage2">--</td><td id="sampleAverage3">--</td><td id="sampleAverage4">--</td></tr></tfoot>
+      </table>
+    </section>
+  </main>
+
+  <div class="result-overlay" id="resultOverlay" hidden>
+    <div class="result-card"><p>FINAL RESULT</p><h2 id="resultWord">PERF</h2><strong id="resultScore">400</strong><span>/ 400 POINTS</span><button id="resultClose">もう一度</button></div>
+  </div>
+  <dialog class="ble-dialog" id="bleDialog" aria-labelledby="bleDialogTitle">
+    <div class="ble-dialog-head">
+      <div><small>BLUETOOTH DEVICES</small><h2 id="bleDialogTitle">BOB2 micro:bitを接続</h2></div>
+      <button id="bleDialogClose" type="button" aria-label="閉じる">×</button>
+    </div>
+    <p class="ble-dialog-help">近くの接続可能なmicro:bitを一覧表示します。4台まとめて、または1台ずつ接続できます。</p>
+    <div class="ble-scan-state" id="bleScanState">スキャン待ち</div>
+    <ol class="ble-device-list" id="bleDeviceList"></ol>
+    <div class="ble-dialog-actions">
+      <button id="bleRescanButton" type="button">再スキャン</button>
+      <button id="bleConnectAllButton" type="button" class="primary">すべて接続</button>
+      <button id="bleCancelButton" type="button">キャンセル</button>
+    </div>
+  </dialog>
+  <script type="module" src="/app.js"></script>
+</body>
+</html>
